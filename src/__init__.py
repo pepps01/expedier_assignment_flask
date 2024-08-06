@@ -94,8 +94,10 @@ def document_upload(applicant_id):
         # include static files
             document = Document(
                 image=request_data['img'], 
-                applicant_id= applicant_id
+                applicant_id= applicant_id,
+                verified=response['status']
             )
+
             db.session.add(document)
             db.session.commit()
             return response_message(result=response,message="Document uploaded created")
@@ -109,21 +111,17 @@ def verification_status(applicant_id):
         applicant =  Applicant.query.filter_by(sumsub_id=applicant_id).first()
         response = Sumsub.get_applicant_status(applicant.sumsub_id)
 
+        document =  Applicant.query.filter_by(applicant_id=applicant.id).first()
+
         if response:
             return response_message(result=response,message="token created")
     except ConnectionError as e:
         return response_message(result=e)   
         
-
-
 # helper functions
 def generate_random_number(length):
     # Generate a random string of digits (0-9) of given length
     return ''.join(random.choices(string.digits, k=length))
-
-# Generate a random number of 10 characters
-random_number = generate_random_number(10)
-print(random_number)
 
 
 def response_message(message="Ok", status=200, result ={}):
